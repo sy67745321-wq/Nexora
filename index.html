@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NEXORA — Core V2</title>
     <style>
         :root {
@@ -83,19 +83,19 @@
         .nav-btn.active { color: var(--text); }
 
         #dmPanel { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); z-index: 1000; 
-            display: none; flex-direction: column; padding: 24px; 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: var(--bg); z-index: 1000; 
+            display: none; flex-direction: column; padding: 16px 16px 24px; 
         }
         #dmPanel.sliding-active {
             display: flex;
             animation: slideOverlayIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .dm-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px; }
+        .dm-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
         
-        #dmHistoryBox { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+        #dmHistoryBox { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
         .history-node-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; position: relative; overflow: hidden; }
 
-        #dmChatLog { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+        #dmChatLog { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; padding-bottom: 8px; }
         .dm-bubble { max-width: 80%; padding: 12px 16px; border-radius: 8px; font-size: 14px; position: relative; }
         .dm-bubble.me { background: var(--surface); border: 1px solid var(--border); align-self: flex-end; color: var(--text); }
         .dm-bubble.them { background: #18181b; border: 1px solid var(--border); align-self: flex-start; color: var(--text); cursor: pointer; }
@@ -103,22 +103,22 @@
         .dm-media-img { width: 100%; max-width: 220px; border-radius: 6px; margin-top: 6px; display: block; border: 1px solid var(--border); }
         .dm-voice-player { margin-top: 6px; display: block; height: 32px; max-width: 240px; outline: none; }
 
-        .dm-controls { display: flex; gap: 8px; align-items: center; }
+        .dm-controls { display: flex; gap: 8px; align-items: center; background: var(--bg); padding-top: 8px; border-top: 1px solid var(--border); margin-bottom: env(safe-area-inset-bottom, 0px); }
         .media-tool-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); font-size: 18px; padding: 0 14px; height: 48px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .media-tool-btn.recording { color: #ef4444; border-color: #ef4444; background: #271414; }
 
         .feedback-log { color: #ef4444; font-size: 13px; margin-top: 8px; font-weight: 500; text-align: center; display: none; }
 
         #hubChatPanel { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); z-index: 1000; 
-            display: none; flex-direction: column; padding: 24px; 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: var(--bg); z-index: 1000; 
+            display: none; flex-direction: column; padding: 16px 16px 24px; 
         }
         #hubChatPanel.sliding-active {
             display: flex;
             animation: slideOverlayIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .hub-chat-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px; }
-        #hubChatLog { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+        .hub-chat-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
+        #hubChatLog { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
         .hub-msg-bubble { padding: 12px 16px; border-radius: 8px; font-size: 14px; max-width: 80%; }
         .hub-msg-bubble.me { background: var(--surface); border: 1px solid var(--border); align-self: flex-end; }
         .hub-msg-bubble.them { background: #18181b; border: 1px solid var(--border); align-self: flex-start; cursor: pointer; }
@@ -200,7 +200,7 @@
         
         <div id="dmHistoryBox"></div>
 
-        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
             <input type="text" id="dmTargetUser" class="input-field" placeholder="Target username..." style="margin-bottom: 0;">
             <button id="connectDMTunnelBtn" class="join-btn" style="background:var(--accent); color:var(--bg);">Connect</button>
         </div>
@@ -229,7 +229,7 @@
             <button id="closeHubChatBtn" class="join-btn">Exit Room</button>
         </div>
         <div id="hubChatLog"></div>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; margin-bottom: env(safe-area-inset-bottom, 0px);">
             <input type="text" id="hubMsgInput" class="input-field" placeholder="Broadcast to channel..." style="margin-bottom: 0;">
             <button id="sendHubMsgBtn" class="join-btn" style="background:var(--accent); color:var(--bg);">Send</button>
         </div>
@@ -268,7 +268,6 @@
         let audioChunks = [];
         let isRecording = false;
 
-        // BIND EVENT LISTENERS TO BYPASS SANDBOX DROPS
         document.getElementById('authBtn').addEventListener('click', handleAuth);
         document.getElementById('authToggle').addEventListener('click', toggleAuthMode);
         document.getElementById('createPostBtn').addEventListener('click', createPost);
@@ -351,7 +350,6 @@
                 if (data.color) applyGlobalThemeAccent(data.color);
                 if (data.avatar) document.getElementById('editAvatar').value = data.avatar;
 
-                // Sync Global Data Listeners
                 syncFeed();
                 syncHubs();
                 syncDMHistoryList();
@@ -446,7 +444,6 @@
                                 ${deleteButton}
                             </div>`;
                         
-                        // Bind active action nodes inside the loop
                         let deleteBtnNode = div.querySelector('.delete-action');
                         if(deleteBtnNode) deleteBtnNode.addEventListener('click', () => deletePost(p.id));
                         div.querySelector('.like-trigger').addEventListener('click', () => toggleLikePost(p.id, hasLiked, p.likes || 0));
@@ -509,7 +506,7 @@
         let hubMessagesListener = null;
         function openHubChat(hubId) {
             activeHubId = hubId;
-            if(hubMessagesListener) hubMessagesListener(); // wipe old event reference
+            if(hubMessagesListener) hubMessagesListener();
             
             get(ref(rtdb, 'hubs/' + hubId)).then(snapshot => {
                 let targetHub = snapshot.val();
@@ -581,7 +578,6 @@
             const target = document.getElementById('dmTargetUser').value.trim().toLowerCase();
             if(!target || !currentUser || target === currentUser) return;
             
-            // Look up node presence profile
             get(ref(rtdb, 'users/' + target)).then(snapshot => {
                 if(!snapshot.exists()) {
                     alert("Target node link path not found on cloud core registry.");
@@ -592,7 +588,6 @@
                 document.getElementById('dmSendBtn').removeAttribute('disabled');
                 document.getElementById('dmStatus').innerText = `Active Link: ${activeDMTarget}`;
                 
-                // Track dynamic bidirectional encryption key map strings
                 const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
                 
                 if(dmMessagesListener) dmMessagesListener();
@@ -749,9 +744,6 @@
         }
         
         function escapeHTML(str) { return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
-
-        // Boot Routine Initialization
-        initIndexedDB();
     </script>
 </body>
 </html>
