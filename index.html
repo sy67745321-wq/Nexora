@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEXORA — Core V8.4</title>
+    <title>NEXORA — Core V8.9</title>
     <style>
         :root { --bg: #000000; --surface: #262626; --border: #363636; --border-focus: #555; --text: #F5F5F5; --text-muted: #A8A8A8; --accent: #ffffff; --accent-blue: #3797F0; --accent-purple: #9D38FA; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -43,12 +43,7 @@
         .hub-tag { display: inline-block; font-size: 10px; background: var(--surface); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; margin-top: 6px; }
         .join-btn { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
 
-        nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); border-top: 1px solid var(--border); display: none; justify-content: space-around; padding: 16px 0 30px; z-index: 50; }
-        nav.authorized { display: flex; }
-        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 8px; width: 25%; text-align: center; cursor: pointer; }
-        .nav-btn.active { color: var(--text); }
-
-        .full-screen-panel { position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: var(--bg); z-index: 1000; display: none; flex-direction: column; }
+        .full-screen-panel { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: none; flex-direction: column; }
         .sliding-active { display: flex !important; animation: slideOverlayIn 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
         
         .dm-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding: 12px 16px; flex-shrink: 0; background: var(--bg); z-index: 10; }
@@ -65,11 +60,11 @@
         .chat-preview { color: var(--text-muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .unread-badge { background: #ff3040; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 12px; display: none; }
 
-        #dmChatLog { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px 40px; scroll-behavior: smooth; }
+        #dmChatLog { flex: 1 1 auto; height: 0; min-height: 0; overflow-y: auto; display: block; padding: 16px 12px 40px; scroll-behavior: smooth; }
         
         .time-divider { text-align: center; font-size: 12px; color: var(--text-muted); margin: 24px 0 16px; width: 100%; font-weight: 500; }
         
-        .message-row { display: flex; width: 100%; margin-bottom: 2px; position: relative; transition: transform 0.1s ease-out; will-change: transform; align-items: flex-end; }
+        .message-row { display: flex; width: 100%; margin-bottom: 2px; position: relative; transition: transform 0.1s ease-out; align-items: flex-end; }
         .message-row.me { justify-content: flex-end; }
         .message-row.them { justify-content: flex-start; gap: 8px; }
 
@@ -115,6 +110,12 @@
         .feedback-log { font-size: 13px; margin-top: 12px; text-align: center; display: none; padding: 10px; border-radius: 6px; font-weight: 500; }
         .feedback-log.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
         .feedback-log.loading { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .sys-error-msg { background: #fee2e2; color: #dc2626; padding: 12px; margin: 16px; border-radius: 8px; font-size: 13px; border: 1px solid #fca5a5; }
+
+        nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); border-top: 1px solid var(--border); display: none; justify-content: space-around; padding: 16px 0 30px; z-index: 50; }
+        nav.authorized { display: flex; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 8px; width: 25%; text-align: center; cursor: pointer; }
+        .nav-btn.active { color: var(--text); }
     </style>
 </head>
 <body>
@@ -202,6 +203,8 @@
                     <span id="dmStatus" style="font-size:12px; color:var(--text-muted);">Active now</span>
                 </div>
             </div>
+            <!-- WIPE CHAT BUTTON ADDED HERE -->
+            <button id="nukeChatBtn" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;">Wipe Chat</button>
         </div>
         
         <div id="dmChatLog"></div>
@@ -249,29 +252,22 @@
             });
         }
 
-        window.addEventListener('error', e => { const n = document.getElementById('authFeedback'); if(n){ n.style.display='block'; n.className='feedback-log error'; n.innerText='CRASH: '+e.message; } });
-
         const firebaseConfig = {
             apiKey: "AIzaSyDtEKv70MeF6X7nFhyUU-g_6UDmPdwlntw",
             authDomain: "nexora-59099.firebaseapp.com",
             databaseURL: "https://nexora-59099-default-rtdb.firebaseio.com",
-            projectId: "nexora-59099",
-            storageBucket: "nexora-59099.firebasestorage.app",
-            messagingSenderId: "47535401150",
-            appId: "1:47535401150:web:5ea4c79df7968655ed16ef"
+            projectId: "nexora-59099"
         };
 
         const app = initializeApp(firebaseConfig);
         const rtdb = getDatabase(app);
 
-        let isLoginMode = false, currentUser = null, activeDMTarget = null, activeHubId = null;
+        let isLoginMode = false, currentUser = null, activeDMTarget = null, activeTunnelId = null;
         let replyingToId = null, replyingToText = "";
-        let touchStartX = 0, currentTouchX = 0;
         let dmMessagesListener = null, typingListener = null, presenceListener = null;
 
         try { const sess = localStorage.getItem('nexora_user'); if(sess) { currentUser = sess; loadApplicationState(); } } catch(e) {}
 
-        // BULLETPROOF ESCAPE FUNCTION FOR MISSING DATA
         function escapeHTML(str) { 
             if (str === null || str === undefined) return "";
             return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); 
@@ -282,6 +278,10 @@
         document.getElementById('createPostBtn').addEventListener('click', createPost);
         document.getElementById('saveProfileBtn').addEventListener('click', updateProfile);
         document.getElementById('disconnectBtn').addEventListener('click', logout);
+        
+        document.getElementById('navFeedBtn').addEventListener('click', function() { switchPage('feedPage', this); });
+        document.getElementById('navHubsBtn').addEventListener('click', function() { switchPage('subspacesPage', this); });
+        document.getElementById('navProfileBtn').addEventListener('click', function() { switchPage('profilePage', this); });
         
         document.getElementById('navDMsBtn').addEventListener('click', () => { document.getElementById('dmInboxPanel').classList.add('sliding-active'); });
         document.getElementById('closeInboxBtn').addEventListener('click', () => { document.getElementById('dmInboxPanel').classList.remove('sliding-active'); });
@@ -296,39 +296,33 @@
             if(dmMessagesListener) dmMessagesListener(); 
             if(typingListener) typingListener(); 
             if(presenceListener) presenceListener(); 
-            activeDMTarget = null; 
+            activeDMTarget = null;
+            activeTunnelId = null;
             resetReplyState(); 
         });
 
+        document.getElementById('nukeChatBtn').addEventListener('click', () => {
+            if(activeTunnelId) {
+                remove(ref(rtdb, `dms/${activeTunnelId}`)).then(() => {
+                    document.getElementById('dmChatLog').innerHTML = '<div style="color:#22c55e; text-align:center; padding:20px;">Chat completely wiped. Say Hi!</div>';
+                });
+            }
+        });
+
+        document.getElementById('dmSendBtn').addEventListener('click', sendDM);
+        document.getElementById('cancelReplyBtn').addEventListener('click', resetReplyState);
         document.getElementById('mediaPhotoBtn').addEventListener('click', () => { if(activeDMTarget) document.getElementById('dmPhotoFile').click(); });
         document.getElementById('dmPhotoFile').addEventListener('change', handleDMPhotoUpload);
-        document.getElementById('dmSendBtn').addEventListener('click', sendDM);
-        
-        document.getElementById('navFeedBtn').addEventListener('click', function() { switchPage('feedPage', this); });
-        document.getElementById('navHubsBtn').addEventListener('click', function() { switchPage('subspacesPage', this); });
-        document.getElementById('navProfileBtn').addEventListener('click', function() { switchPage('profilePage', this); });
 
-        document.getElementById('cancelReplyBtn').addEventListener('click', resetReplyState);
-
-        document.getElementById('dmMsgInput').addEventListener('input', function() {
+        const inputField = document.getElementById('dmMsgInput');
+        inputField.addEventListener('input', function() {
             const btn = document.getElementById('dmSendBtn');
             if(this.value.trim().length > 0) { btn.style.display = 'block'; btn.removeAttribute('disabled'); } 
             else { btn.style.display = 'none'; btn.setAttribute('disabled', 'true'); }
         });
-
-        document.addEventListener('touchstart', (e) => {
-            if(!e.target.closest('.reaction-tray') && !e.target.closest('.dm-bubble')) document.getElementById('reactionTray').style.display = 'none';
-        });
-
-        document.querySelectorAll('.reaction-emoji').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const tray = document.getElementById('reactionTray');
-                const msgId = tray.dataset.msgid;
-                const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
-                if (e.target.id === "unsendMenuTrigger") { if(tray.dataset.sender === currentUser) remove(ref(rtdb, `dms/${tunnelId}/${msgId}`)); } 
-                else { update(ref(rtdb, `dms/${tunnelId}/${msgId}`), { reaction: e.target.innerText }); }
-                tray.style.display = 'none';
-            });
+        
+        inputField.addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') { e.preventDefault(); sendDM(); }
         });
 
         function toggleAuthMode() {
@@ -341,26 +335,17 @@
         function handleAuth() {
             const user = document.getElementById('authUsername').value.trim().toLowerCase();
             const pass = document.getElementById('authPassword').value.trim();
-            const msgNode = document.getElementById('authFeedback');
-            msgNode.style.display = 'none'; 
-            if(!user || !pass) { showError("Required fields missing."); return; }
-            if(/[.#$\[\]\s]/.test(user)) { showError("Invalid characters."); return; }
-            msgNode.className = "feedback-log loading"; msgNode.innerText = "Connecting..."; msgNode.style.display = 'block';
-
+            if(!user || !pass) return;
+            
             get(ref(rtdb, 'users/' + user)).then(snapshot => {
                 if (!isLoginMode) {
-                    if (snapshot.exists() || user === "system") { showError("Username taken."); return; }
                     set(ref(rtdb, 'users/' + user), { username: user, password: pass, bio: "No bio written yet.", avatar: "", color: "#ffffff" })
-                    .then(() => { currentUser = user; try { localStorage.setItem('nexora_user', user); } catch(e) {} loadApplicationState(); })
-                    .catch(err => showError(`WRITE ERROR: ${err.message}`));
+                    .then(() => { currentUser = user; try { localStorage.setItem('nexora_user', user); } catch(e) {} loadApplicationState(); });
                 } else {
-                    if (!snapshot.exists() || snapshot.val().password !== pass) { showError("Invalid credentials."); return; }
                     currentUser = user; try { localStorage.setItem('nexora_user', user); } catch(e) {} loadApplicationState();
                 }
-            }).catch(err => showError(`READ ERROR: ${err.message}`));
+            });
         }
-
-        function showError(msg) { const n = document.getElementById('authFeedback'); n.className = "feedback-log error"; n.innerText = msg; n.style.display = 'block'; }
         
         function loadApplicationState() {
             if(!currentUser) return;
@@ -375,8 +360,12 @@
             });
         }
 
-        function logout() { currentUser = null; try { localStorage.removeItem('nexora_user'); } catch(e) {} location.reload(); }
-        function switchPage(pageId, button) { document.querySelectorAll('.page').forEach(page => page.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); document.getElementById(pageId).classList.add('active'); if(button) button.classList.add('active'); }
+        function switchPage(pageId, button) { 
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active')); 
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); 
+            document.getElementById(pageId).classList.add('active'); 
+            if(button) button.classList.add('active'); 
+        }
 
         function createPost() {
             const txt = document.getElementById('postInput').value.trim(), imgUrl = document.getElementById('postImageUrl').value.trim();
@@ -413,6 +402,8 @@
             update(ref(rtdb), updates).then(() => { document.getElementById('editPassword').value = ''; loadApplicationState(); });
         }
 
+        function logout() { currentUser = null; try { localStorage.removeItem('nexora_user'); } catch(e) {} location.reload(); }
+
         function triggerReply(msgId, text, sender) {
             replyingToId = msgId; replyingToText = text;
             document.getElementById('replyTargetName').innerText = sender;
@@ -422,148 +413,126 @@
         }
         function resetReplyState() { replyingToId = null; replyingToText = ""; document.getElementById('replyPreviewBar').style.display = 'none'; }
 
-        function handleDoubleTapHeart(el, tunnelId, msgId) {
-            let overlay = el.querySelector('.heart-overlay');
-            if(!overlay) { overlay = document.createElement('div'); overlay.className = 'heart-overlay'; overlay.innerText = '❤️'; el.appendChild(overlay); }
-            overlay.style.display = 'block'; overlay.style.animation = 'none'; void overlay.offsetWidth; overlay.style.animation = 'heartBurst 0.6s ease-out forwards';
-            update(ref(rtdb, `dms/${tunnelId}/${msgId}`), { reaction: "❤️" });
-        }
-
-        function connectDMTunnel(targetUser) {
+        function connectDMTunnel(targetUser, explicitTunnelId = null) {
             if(!targetUser || !currentUser || targetUser === currentUser) return;
             
             activeDMTarget = targetUser;
+            activeTunnelId = explicitTunnelId || (currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`);
+
             document.getElementById('dmMsgInput').removeAttribute('disabled'); 
             document.getElementById('dmHeaderName').innerText = activeDMTarget;
             document.getElementById('dmStatus').innerText = "Connecting...";
             document.getElementById('activeChatAvatar').innerText = activeDMTarget.charAt(0).toUpperCase();
-            
             document.getElementById('dmChatPanel').classList.add('sliding-active');
             
-            const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
             if(dmMessagesListener) dmMessagesListener(); if(typingListener) typingListener(); if(presenceListener) presenceListener();
             
             presenceListener = onValue(ref(rtdb, `presence/${activeDMTarget}`), snap => { document.getElementById('dmStatus').innerText = snap.exists() ? "Active now" : `Offline`; });
-            typingListener = onValue(ref(rtdb, `typing/${tunnelId}/${activeDMTarget}`), snap => { document.getElementById('typingIndicator').innerText = (snap.exists() && snap.val() === true) ? `${activeDMTarget} is typing...` : ""; });
+            typingListener = onValue(ref(rtdb, `typing/${activeTunnelId}/${activeDMTarget}`), snap => { document.getElementById('typingIndicator').innerText = (snap.exists() && snap.val() === true) ? `${activeDMTarget} is typing...` : ""; });
 
-            get(ref(rtdb, `dms/${tunnelId}`)).then(snap => {
-                if (snap.exists()) {
-                    let updates = {}; snap.forEach(child => { if (child.val().sender !== currentUser && child.val().status !== 'seen') { updates[child.key + '/status'] = 'seen'; } });
-                    if (Object.keys(updates).length > 0) update(ref(rtdb, `dms/${tunnelId}`), updates);
-                }
-            });
-
-            dmMessagesListener = onValue(ref(rtdb, `dms/${tunnelId}`), dmSnapshot => {
-                const log = document.getElementById('dmChatLog'); log.innerHTML = '';
-                if(!dmSnapshot.exists()) return;
+            dmMessagesListener = onValue(ref(rtdb, `dms/${activeTunnelId}`), dmSnapshot => {
+                const log = document.getElementById('dmChatLog');
                 
-                let msgs = []; dmSnapshot.forEach(child => msgs.push({ id: child.key, ...child.val() }));
-                let lastTime = 0;
+                if(!dmSnapshot.exists()) {
+                    log.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">No messages yet. Send a hi!</div>`;
+                    return;
+                }
 
-                msgs.forEach((m, index) => {
-                    let safeTimestamp = m.timestamp || 0;
-                    if (safeTimestamp && (safeTimestamp - lastTime > 3600000)) { 
-                        let timeDiv = document.createElement('div'); timeDiv.className = 'time-divider'; timeDiv.innerText = new Date(safeTimestamp).toLocaleString([], {weekday: 'short', hour: '2-digit', minute:'2-digit'}); log.appendChild(timeDiv);
-                    }
-                    if(safeTimestamp) lastTime = safeTimestamp;
-
-                    let prev = index > 0 ? msgs[index - 1] : null, next = index < msgs.length - 1 ? msgs[index + 1] : null;
-                    
-                    // BULLETPROOF SENDER CHECK
-                    let senderName = m.sender || "Unknown";
-                    
-                    let isFirst = !prev || prev.sender !== senderName || (safeTimestamp && prev.timestamp && safeTimestamp - prev.timestamp > 300000);
-                    let isLast = !next || next.sender !== senderName || (next.timestamp && safeTimestamp && next.timestamp - safeTimestamp > 300000);
-
-                    let radiusClass = (isFirst && isLast) ? "single" : (isFirst && !isLast) ? "group-start" : (!isFirst && !isLast) ? "group-mid" : "group-end";
-
-                    let row = document.createElement('div');
-                    row.className = `message-row ${senderName === currentUser ? 'me' : 'them'} ${radiusClass}`; 
-                    
-                    let avatarHTML = senderName !== currentUser ? `<div class="them-avatar">${senderName.charAt(0).toUpperCase()}</div>` : '';
-
-                    let bubble = document.createElement('div'); 
-                    bubble.className = `dm-bubble ${senderName === currentUser ? 'me' : 'them'}`; 
-                    
-                    let replyHTML = m.replyTo ? `<div class="replied-to-ref">↪ ${escapeHTML(m.replyTo)}</div>` : "";
-                    
-                    // BULLETPROOF MESSAGE EXTRACTION
-                    let msgText = m.message || m.text || "";
-                    let contentHTML = m.type === "image" ? `<img src="${msgText}" class="dm-media-img">` : escapeHTML(msgText);
-                    
-                    let reactionHTML = m.reaction ? `<div class="reaction-badge">${m.reaction}</div>` : ""; 
-                    bubble.innerHTML = replyHTML + contentHTML + reactionHTML;
-
-                    let isSwiping = false, pressTimer, lastTap = 0;
-
-                    bubble.addEventListener('touchstart', e => {
-                        touchStartX = e.touches[0].clientX; isSwiping = false;
-                        pressTimer = setTimeout(() => { 
-                            const tray = document.getElementById('reactionTray'); const rect = bubble.getBoundingClientRect();
-                            let trayX = rect.left + (rect.width / 2);
-                            trayX = Math.max(160, Math.min(window.innerWidth - 160, trayX));
-                            
-                            tray.style.display = 'flex'; tray.style.left = trayX + 'px'; tray.style.top = (rect.top - 10) + 'px';
-                            tray.dataset.msgid = m.id; tray.dataset.sender = senderName;
-                            document.getElementById('unsendMenuTrigger').style.display = (senderName === currentUser) ? 'block' : 'none';
-                        }, 500);
-                    });
-
-                    bubble.addEventListener('touchmove', e => {
-                        currentTouchX = e.touches[0].clientX; let diff = currentTouchX - touchStartX;
-                        if(Math.abs(diff) > 10) { isSwiping = true; clearTimeout(pressTimer); }
-                        if (diff < 0 && senderName === currentUser) row.style.transform = `translateX(${Math.max(diff, -60)}px)`; 
-                        else if (diff > 0 && senderName !== currentUser) row.style.transform = `translateX(${Math.min(diff, 60)}px)`; 
-                    });
-
-                    bubble.addEventListener('touchend', () => {
-                        clearTimeout(pressTimer); row.style.transform = 'translateX(0)';
-                        if (isSwiping && Math.abs(currentTouchX - touchStartX) > 40) triggerReply(m.id, msgText, senderName);
-                        else if (!isSwiping) { 
-                            let currentTime = new Date().getTime(); let tapLength = currentTime - lastTap;
-                            if (tapLength < 300 && tapLength > 0) handleDoubleTapHeart(bubble, tunnelId, m.id);
-                            lastTap = currentTime;
+                try {
+                    let msgs = [];
+                    dmSnapshot.forEach(child => {
+                        let val = child.val();
+                        if(typeof val === 'object' && val !== null) {
+                            msgs.push({ id: child.key, ...val });
+                        } else {
+                            msgs.push({ id: child.key, sender: "System", message: String(val) });
                         }
                     });
+                    
+                    let htmlBuffer = '';
+                    let lastTime = 0;
 
-                    row.innerHTML = avatarHTML;
-                    row.appendChild(bubble);
-                    log.appendChild(row);
+                    msgs.forEach((m, index) => {
+                        let safeTimestamp = Number(m.timestamp) || 0;
+                        if (safeTimestamp && (safeTimestamp - lastTime > 3600000)) { 
+                            htmlBuffer += `<div class="time-divider">${new Date(safeTimestamp).toLocaleString([], {weekday: 'short', hour: '2-digit', minute:'2-digit'})}</div>`;
+                        }
+                        if(safeTimestamp) lastTime = safeTimestamp;
 
-                    if (index === msgs.length - 1 && senderName === currentUser && m.status === 'seen') { 
-                        let seenDiv = document.createElement('div'); seenDiv.className = 'seen-status'; seenDiv.innerText = 'Seen'; log.appendChild(seenDiv); 
-                    }
-                });
-                
-                setTimeout(() => { 
-                    const lastElement = log.lastElementChild;
-                    if(lastElement) lastElement.scrollIntoView({ block: 'end' }); 
-                }, 50);
+                        let senderName = m.sender ? String(m.sender) : "Unknown";
+                        let isMe = senderName === currentUser;
+                        
+                        let prev = index > 0 ? msgs[index - 1] : null;
+                        let next = index < msgs.length - 1 ? msgs[index + 1] : null;
+                        let prevSender = prev && prev.sender ? String(prev.sender) : null;
+                        let nextSender = next && next.sender ? String(next.sender) : null;
+
+                        let isFirst = !prev || prevSender !== senderName || (safeTimestamp && prev.timestamp && safeTimestamp - prev.timestamp > 300000);
+                        let isLast = !next || nextSender !== senderName || (next.timestamp && safeTimestamp && next.timestamp - safeTimestamp > 300000);
+
+                        let radiusClass = (isFirst && isLast) ? "single" : (isFirst && !isLast) ? "group-start" : (!isFirst && !isLast) ? "group-mid" : "group-end";
+
+                        let avatarHTML = !isMe ? `<div class="them-avatar" style="${isLast || isFirst ? 'visibility:visible;' : 'visibility:hidden;'}">${senderName.charAt(0).toUpperCase()}</div>` : '';
+
+                        let msgText = m.message ? String(m.message) : (m.text ? String(m.text) : "...");
+                        let replyHTML = m.replyTo ? `<div class="replied-to-ref">↪ ${escapeHTML(m.replyTo)}</div>` : "";
+                        let contentHTML = m.type === "image" ? `<img src="${escapeHTML(msgText)}" class="dm-media-img">` : escapeHTML(msgText);
+                        let reactionHTML = m.reaction ? `<div class="reaction-badge">${escapeHTML(m.reaction)}</div>` : ""; 
+                        
+                        let bubbleHTML = `<div class="dm-bubble ${isMe ? 'me' : 'them'}" data-msgid="${m.id}" data-sender="${senderName}">${replyHTML}${contentHTML}${reactionHTML}</div>`;
+                        let rowHTML = `<div class="message-row ${isMe ? 'me' : 'them'} ${radiusClass}" style="transform: translateX(0);">${avatarHTML}${bubbleHTML}</div>`;
+                        
+                        htmlBuffer += rowHTML;
+                    });
+
+                    log.innerHTML = htmlBuffer;
+                    setTimeout(() => { log.scrollTop = log.scrollHeight + 1000; }, 20);
+
+                } catch (err) {
+                    log.innerHTML = `<div class="sys-error-msg"><b>Data Error:</b><br>${err.message}<br><br>Tap 'Wipe Chat' above to fix.</div>`;
+                }
             });
         }
 
         let typingTimer;
         document.getElementById('dmMsgInput').addEventListener('input', () => {
-            if(!activeDMTarget) return; const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
-            set(ref(rtdb, `typing/${tunnelId}/${currentUser}`), true); clearTimeout(typingTimer); typingTimer = setTimeout(() => remove(ref(rtdb, `typing/${tunnelId}/${currentUser}`)), 1500);
+            if(!activeDMTarget || !activeTunnelId) return;
+            set(ref(rtdb, `typing/${activeTunnelId}/${currentUser}`), true); 
+            clearTimeout(typingTimer); 
+            typingTimer = setTimeout(() => remove(ref(rtdb, `typing/${activeTunnelId}/${currentUser}`)), 1500);
         });
 
         function sendDM() {
-            const input = document.getElementById('dmMsgInput'); if(!input.value.trim() || !activeDMTarget) return; 
-            const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`; 
+            const input = document.getElementById('dmMsgInput'); 
+            const msgText = input.value.trim();
+            if(!msgText || !activeDMTarget || !activeTunnelId) return; 
             
-            let payload = { sender: currentUser, receiver: activeDMTarget, message: input.value.trim(), type: "text", timestamp: Date.now(), status: "sent" };
+            const log = document.getElementById('dmChatLog');
+            const tempId = 'opt_' + Date.now();
+            log.insertAdjacentHTML('beforeend', `<div id="${tempId}" class="message-row me single"><div class="dm-bubble me" style="opacity: 0.5;">${escapeHTML(msgText)}</div></div>`);
+            setTimeout(() => { log.scrollTop = log.scrollHeight + 1000; }, 10);
+            
+            let payload = { sender: currentUser, receiver: activeDMTarget, message: msgText, type: "text", timestamp: Date.now(), status: "sent" };
             if(replyingToText) payload.replyTo = replyingToText;
             
-            push(ref(rtdb, `dms/${tunnelId}`), payload).then(() => { 
-                input.value = ''; resetReplyState(); 
-                document.getElementById('dmSendBtn').style.display = 'none'; 
-                document.getElementById('dmSendBtn').setAttribute('disabled', 'true');
-            });
+            input.value = ''; resetReplyState(); 
+            document.getElementById('dmSendBtn').style.display = 'none'; 
+            document.getElementById('dmSendBtn').setAttribute('disabled', 'true');
+            
+            push(ref(rtdb, `dms/${activeTunnelId}`), payload);
         }
 
-        function handleDMPhotoUpload(event) { const file = event.target.files[0]; if(!file || !activeDMTarget) return; const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`; const reader = new FileReader(); reader.onload = function(e) { push(ref(rtdb, `dms/${tunnelId}`), { sender: currentUser, receiver: activeDMTarget, message: e.target.result, type: "image", timestamp: Date.now(), status: "sent" }); }; reader.readAsDataURL(file); event.target.value = ''; }
-        
+        function handleDMPhotoUpload(event) { 
+            const file = event.target.files[0]; 
+            if(!file || !activeDMTarget || !activeTunnelId) return; 
+            const reader = new FileReader(); 
+            reader.onload = function(e) { 
+                push(ref(rtdb, `dms/${activeTunnelId}`), { sender: currentUser, receiver: activeDMTarget, message: e.target.result, type: "image", timestamp: Date.now(), status: "sent" }); 
+            }; 
+            reader.readAsDataURL(file); 
+            event.target.value = ''; 
+        }
+
         function syncDMHistoryList() {
             onValue(ref(rtdb, 'dms'), dmsSnapshot => {
                 onValue(ref(rtdb, 'users'), usersSnapshot => {
@@ -571,39 +540,44 @@
                         const container = document.getElementById('recent-chats-container'); container.innerHTML = '';
                         if(!dmsSnapshot.exists() || !currentUser) return;
                         let userMap = usersSnapshot.val() || {}, presenceMap = presenceSnapshot.val() || {}, chatList = [];
+                        
                         dmsSnapshot.forEach(child => {
-                            if (child.key.includes(currentUser)) {
-                                let otherUser = child.key.split('_').find(n => n !== currentUser);
+                            let participants = child.key.split('_');
+                            if (participants.includes(currentUser)) {
+                                let otherUser = participants.find(n => n !== currentUser);
                                 if (otherUser) {
                                     let msgs = [], unreadCount = 0; 
-                                    child.forEach(m => { let val = m.val(); msgs.push(val); if(val.sender !== currentUser && val.status !== 'seen') unreadCount++; }); 
+                                    child.forEach(m => { 
+                                        if(typeof m.val() === 'object') {
+                                            msgs.push(m.val()); 
+                                            if(m.val().sender !== currentUser && m.val().status !== 'seen') unreadCount++; 
+                                        }
+                                    }); 
                                     
-                                    // BULLETPROOF PREVIEW EXTRACTION
                                     let lastMsg = msgs[msgs.length - 1] || {};
                                     let msgText = lastMsg.message || lastMsg.text || "";
-                                    let previewText = lastMsg.type === 'text' ? msgText : `Sent an attachment`;
+                                    let previewText = lastMsg.type === 'text' ? msgText : `Message`;
                                     
-                                    chatList.push({ username: otherUser, avatar: (userMap[otherUser] && userMap[otherUser].avatar) ? userMap[otherUser].avatar : "", preview: previewText, isOnline: !!presenceMap[otherUser], timestamp: lastMsg.timestamp || 0, unread: unreadCount });
+                                    chatList.push({ tunnelId: child.key, username: otherUser, avatar: (userMap[otherUser] && userMap[otherUser].avatar) ? userMap[otherUser].avatar : "", preview: previewText, isOnline: !!presenceMap[otherUser], timestamp: lastMsg.timestamp || 0, unread: unreadCount });
                                 }
                             }
                         });
                         chatList.sort((a, b) => b.timestamp - a.timestamp);
                         if(chatList.length === 0) return;
                         chatList.forEach(chat => {
-                            // BULLETPROOF AVATAR EXTRACTION
                             let safeUsername = chat.username || "Unknown";
                             let avatarHTML = chat.avatar ? `<img src="${escapeHTML(chat.avatar)}" class="chat-avatar">` : `<div class="chat-avatar">${safeUsername.charAt(0).toUpperCase()}</div>`;
                             
                             let badgeHTML = chat.unread > 0 ? `<div class="unread-badge" style="display:block;">${chat.unread}</div>` : '';
                             let row = document.createElement('div'); row.className = 'chat-row';
                             row.innerHTML = `<div class="chat-avatar-container">${avatarHTML}<div class="online-dot" style="display: ${chat.isOnline ? 'block' : 'none'};"></div></div><div class="chat-details"><div><div class="chat-username">${escapeHTML(safeUsername)}</div><div class="chat-preview" style="${chat.unread > 0 ? 'font-weight:bold; color:var(--text);' : ''}">${escapeHTML(chat.preview)}</div></div>${badgeHTML}</div>`;
-                            row.addEventListener('click', () => { connectDMTunnel(safeUsername); }); container.appendChild(row);
+                            row.addEventListener('click', () => { connectDMTunnel(safeUsername, chat.tunnelId); }); 
+                            container.appendChild(row);
                         });
                     });
                 });
             });
         }
-        
     </script>
 </body>
 </html>
