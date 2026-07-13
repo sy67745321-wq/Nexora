@@ -3,146 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEXORA — Core V2</title>
+    <title>NEXORA — Core V8.4</title>
     <style>
-        :root {
-            --bg: #0a0a0c;
-            --surface: #121215;
-            --border: #222227;
-            --border-focus: #44444f;
-            --text: #f4f4f6;
-            --text-muted: #71717a;
-            --accent: #ffffff;
-            --accent-dim: #e4e4e7;
-        }
+        :root { --bg: #000000; --surface: #262626; --border: #363636; --border-focus: #555; --text: #F5F5F5; --text-muted: #A8A8A8; --accent: #ffffff; --accent-blue: #3797F0; --accent-purple: #9D38FA; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 140px; -webkit-font-smoothing: antialiased; overflow-x: hidden; touch-action: pan-y; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding-bottom: 140px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-
-        header {
-            background: #0a0a0c; padding: 24px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            position: relative; z-index: 50;
-        }
-        .brand-block h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
-        .brand-block p { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 500; letter-spacing: -0.2px; }
-        .system-badge { font-size: 11px; font-family: monospace; color: var(--text-muted); border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; }
-
+        header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 100; }
         .container { max-width: 500px; margin: 20px auto; padding: 0 20px; position: relative; z-index: 200; }
         
         .page { display: none; opacity: 0; transform: translateY(10px); }
-        .page.active { 
-            display: block; 
-            animation: slideUp 0.25s ease-out forwards;
-        }
+        .page.active { display: block; animation: slideUp 0.25s ease-out forwards; }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideOverlayIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        @keyframes slideUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideOverlayIn {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; position: relative; z-index: 210; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
         .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
         
-        .input-field { width: 100%; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 15px; outline: none; margin-bottom: 16px; display: block; position: relative; z-index: 220; }
+        .input-field { width: 100%; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 15px; outline: none; margin-bottom: 16px; display: block; }
         .input-field:focus { border-color: var(--border-focus); }
         textarea.input-field { height: 100px; resize: none; }
-
-        .action-btn { width: 100%; background: var(--accent); color: var(--bg); border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; display: block; text-align: center; position: relative; z-index: 230; pointer-events: auto; }
-        .action-btn:hover { opacity: 0.9; }
-        
+        .action-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; display: block; text-align: center; transition: opacity 0.2s; }
+        .action-btn:active { opacity: 0.7; }
         .post-btn { width: auto; display: inline-block; float: right; padding: 10px 20px; }
 
         .post { border-bottom: 1px solid var(--border); padding: 24px 0; }
-        .post-meta { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-        .post-avatar { width: 24px; height: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; overflow: hidden; position: relative; }
+        .post-meta { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+        .post-avatar { width: 24px; height: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; overflow: hidden; }
         .post-time { color: var(--text-muted); font-weight: 400; font-size: 12px; margin-left: auto; }
         .post-content { font-size: 15px; line-height: 1.5; color: var(--text-muted); }
-        
         .post-actions { margin-top: 12px; display: flex; gap: 16px; }
-        .action-link { background: none; color: var(--text-muted); padding: 0; font-size: 13px; font-weight: 500; border: none; cursor: pointer; }
-        .action-link.liked { font-weight: 700; }
+        .action-link { background: none; color: var(--text-muted); padding: 0; font-size: 13px; border: none; cursor: pointer; }
+        .action-link.liked { font-weight: 700; color: #ff3040 !important; }
         .action-link.delete-action { color: #ef4444; }
 
         .hub-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
         .hub-info h3 { font-size: 15px; font-weight: 600; }
         .hub-info p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-        .hub-tag { display: inline-block; font-size: 10px; font-family: monospace; background: var(--surface); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; margin-top: 6px; color: var(--text-muted); }
+        .hub-tag { display: inline-block; font-size: 10px; background: var(--surface); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; margin-top: 6px; }
         .join-btn { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
 
-        nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: #0a0a0c; border-top: 1px solid var(--border);
-            display: none; justify-content: space-around; padding: 16px 0 30px; z-index: 50;
-        }
+        nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg); border-top: 1px solid var(--border); display: none; justify-content: space-around; padding: 16px 0 30px; z-index: 50; }
         nav.authorized { display: flex; }
         .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 8px; width: 25%; text-align: center; cursor: pointer; }
         .nav-btn.active { color: var(--text); }
 
-        #dmPanel { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: var(--bg); z-index: 1000; 
-            display: none; flex-direction: column; padding: 16px 16px 24px; 
-        }
-        #dmPanel.sliding-active {
-            display: flex;
-            animation: slideOverlayIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .dm-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
+        .full-screen-panel { position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: var(--bg); z-index: 1000; display: none; flex-direction: column; }
+        .sliding-active { display: flex !important; animation: slideOverlayIn 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
         
-        #dmHistoryBox { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-        .history-node-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; position: relative; overflow: hidden; }
-
-        #dmChatLog { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; padding-bottom: 8px; }
-        .dm-bubble { max-width: 80%; padding: 12px 16px; border-radius: 8px; font-size: 14px; position: relative; }
-        .dm-bubble.me { background: var(--surface); border: 1px solid var(--border); align-self: flex-end; color: var(--text); }
-        .dm-bubble.them { background: #18181b; border: 1px solid var(--border); align-self: flex-start; color: var(--text); cursor: pointer; }
+        .dm-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding: 12px 16px; flex-shrink: 0; background: var(--bg); z-index: 10; }
+        .dm-header-left { display: flex; align-items: center; gap: 12px; }
         
-        .dm-media-img { width: 100%; max-width: 220px; border-radius: 6px; margin-top: 6px; display: block; border: 1px solid var(--border); }
-        .dm-voice-player { margin-top: 6px; display: block; height: 32px; max-width: 240px; outline: none; }
+        #recent-chats-container { display: flex; flex-direction: column; overflow-y: auto; flex: 1; padding: 0 12px; }
+        .chat-row { display: flex; align-items: center; padding: 12px 8px; cursor: pointer; width: 100%; }
+        .chat-row:active { background: var(--surface); border-radius: 8px; }
+        .chat-avatar-container { position: relative; margin-right: 12px; }
+        .chat-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: bold; object-fit: cover; }
+        .online-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background-color: #22c55e; border: 2px solid var(--bg); border-radius: 50%; display: none; }
+        .chat-details { flex: 1; overflow: hidden; display: flex; align-items: center; justify-content: space-between; }
+        .chat-username { color: var(--text); font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+        .chat-preview { color: var(--text-muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .unread-badge { background: #ff3040; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 12px; display: none; }
 
-        .dm-controls { display: flex; gap: 8px; align-items: center; background: var(--bg); padding-top: 8px; border-top: 1px solid var(--border); margin-bottom: env(safe-area-inset-bottom, 0px); }
-        .media-tool-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); font-size: 18px; padding: 0 14px; height: 48px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .media-tool-btn.recording { color: #ef4444; border-color: #ef4444; background: #271414; }
+        #dmChatLog { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px 40px; scroll-behavior: smooth; }
+        
+        .time-divider { text-align: center; font-size: 12px; color: var(--text-muted); margin: 24px 0 16px; width: 100%; font-weight: 500; }
+        
+        .message-row { display: flex; width: 100%; margin-bottom: 2px; position: relative; transition: transform 0.1s ease-out; will-change: transform; align-items: flex-end; }
+        .message-row.me { justify-content: flex-end; }
+        .message-row.them { justify-content: flex-start; gap: 8px; }
 
-        .feedback-log { color: #ef4444; font-size: 13px; margin-top: 8px; font-weight: 500; text-align: center; display: none; }
+        .them-avatar { width: 28px; height: 28px; border-radius: 50%; background-color: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; flex-shrink: 0; visibility: hidden; }
+        .message-row.them.group-end .them-avatar { visibility: visible; }
+        .message-row.them.single .them-avatar { visibility: visible; }
 
-        #hubChatPanel { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: var(--bg); z-index: 1000; 
-            display: none; flex-direction: column; padding: 16px 16px 24px; 
-        }
-        #hubChatPanel.sliding-active {
-            display: flex;
-            animation: slideOverlayIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .hub-chat-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
-        #hubChatLog { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
-        .hub-msg-bubble { padding: 12px 16px; border-radius: 8px; font-size: 14px; max-width: 80%; }
-        .hub-msg-bubble.me { background: var(--surface); border: 1px solid var(--border); align-self: flex-end; }
-        .hub-msg-bubble.them { background: #18181b; border: 1px solid var(--border); align-self: flex-start; cursor: pointer; }
+        .dm-bubble { max-width: 70%; padding: 12px 16px; font-size: 15px; line-height: 1.4; word-wrap: break-word; position: relative; user-select: none; color: #ffffff !important; }
+        .dm-bubble.me { background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: #ffffff !important; border-radius: 22px; }
+        .message-row.me.group-start .dm-bubble { border-bottom-right-radius: 4px; }
+        .message-row.me.group-mid .dm-bubble { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+        .message-row.me.group-end .dm-bubble { border-top-right-radius: 4px; }
+
+        .dm-bubble.them { background-color: var(--surface); color: #ffffff !important; border-radius: 22px; }
+        .message-row.them.group-start .dm-bubble { border-bottom-left-radius: 4px; }
+        .message-row.them.group-mid .dm-bubble { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+        .message-row.them.group-end .dm-bubble { border-top-left-radius: 4px; }
+
+        .seen-status { font-size: 11px; color: var(--text-muted); align-self: flex-end; margin-top: 4px; margin-bottom: 12px; margin-right: 4px; }
+        .reaction-badge { position: absolute; bottom: -8px; right: 4px; font-size: 14px; background: var(--bg); border-radius: 50%; padding: 2px; box-shadow: 0 0 0 2px var(--bg); display: flex; align-items: center; justify-content: center; z-index: 2; }
+        
+        .replied-to-ref { font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 4px; border-left: 2px solid rgba(255,255,255,0.5); padding-left: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dm-bubble.them .replied-to-ref { color: var(--text-muted); border-left-color: var(--border-focus); }
+
+        @keyframes heartBurst { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 50% { transform: translate(-50%, -50%) scale(1.5); } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
+        .heart-overlay { position: absolute; top: 50%; left: 50%; font-size: 50px; pointer-events: none; animation: heartBurst 0.6s ease-out forwards; z-index: 10; transform-origin: center; display: none; }
+
+        .reply-bar { background: var(--surface); padding: 8px 12px; font-size: 12px; color: var(--text-muted); display: none; justify-content: space-between; align-items: center; border-left: 3px solid var(--accent-blue); z-index: 5; flex-shrink: 0; border-top: 1px solid var(--border); }
+        
+        .dm-controls { padding: 8px 12px max(12px, env(safe-area-inset-bottom)); background: var(--bg); flex-shrink: 0; z-index: 10; }
+        .input-pill { display: flex; align-items: center; background-color: var(--surface); border-radius: 24px; padding: 4px 8px; min-height: 48px; }
+        .cam-btn { background: var(--accent-blue); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; cursor: pointer; }
+        .msg-input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 15px; padding: 0 12px; outline: none; }
+        .msg-input::placeholder { color: var(--text-muted); }
+        .send-text-btn { background: transparent; color: var(--accent-blue); border: none; font-weight: bold; font-size: 15px; padding: 0 8px; cursor: pointer; display: none; }
+        .send-text-btn:disabled { color: var(--text-muted); cursor: default; }
+
+        .reaction-tray { display: flex; gap: 12px; padding: 10px 16px; background: #18181b; border: 1px solid var(--border); border-radius: 30px; position: fixed; z-index: 3000; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.8); transition: opacity 0.2s; }
+        .reaction-emoji { font-size: 24px; cursor: pointer; transition: transform 0.1s; user-select: none; }
+        .reaction-emoji:active { transform: scale(1.4); }
+        .dm-media-img { width: 100%; max-width: 220px; border-radius: 12px; display: block; margin-top: 4px; }
+
+        .feedback-log { font-size: 13px; margin-top: 12px; text-align: center; display: none; padding: 10px; border-radius: 6px; font-weight: 500; }
+        .feedback-log.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .feedback-log.loading { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="brand-block">
-            <h1>NEXORA</h1>
-            <p>connecting beyond limits</p>
-        </div>
-        <div class="system-badge" id="identityBadge">OFFLINE</div>
+        <img src="logo.png" alt="Nexora" style="height: 36px; width: auto; object-fit: contain;">
+        <input type="text" id="dm-search" placeholder="Search users..." style="background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 8px 14px; border-radius: 8px; width: 50%;">
     </header>
 
     <div class="container">
         <div id="authPage" class="page active">
             <div class="card">
                 <h2 id="authTitle">Create Account</h2>
-                <input type="text" id="authUsername" class="input-field" placeholder="Username">
+                <input type="text" id="authUsername" class="input-field" placeholder="Username (no spaces)">
                 <input type="password" id="authPassword" class="input-field" placeholder="Password">
                 <div id="authFeedback" class="feedback-log"></div>
-                <button id="authBtn" class="action-btn" style="margin-top:12px;">Register</button>
-                <p id="authToggle" style="margin-top: 20px; font-size: 14px; color: var(--text-muted); text-align: center; cursor: pointer; font-weight: 500;">Have an account? Log In</p>
+                <button id="authBtn" class="action-btn" style="margin-top:16px;">Register</button>
+                <p id="authToggle" style="margin-top: 24px; font-size: 14px; color: var(--text-muted); text-align: center; cursor: pointer; padding: 10px;">Have an account? Log In</p>
             </div>
         </div>
 
@@ -174,65 +164,71 @@
             <div class="card">
                 <h2 id="displayUsername" style="font-size: 22px; margin-bottom: 4px;">User</h2>
                 <p id="displayBio" style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">Online Node</p>
-                
                 <input type="text" id="editUsername" class="input-field" placeholder="Update Username">
+                <input type="password" id="editPassword" class="input-field" placeholder="Update Password">
                 <input type="text" id="editBio" class="input-field" placeholder="Update Bio">
                 <input type="text" id="editAvatar" class="input-field" placeholder="Avatar Image URL...">
-                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
-                    <label style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Theme Accent Color:</label>
-                    <input type="color" id="editColor" value="#ffffff" style="background: none; border: 1px solid var(--border); border-radius: 4px; width: 50px; height: 36px; cursor: pointer;">
-                </div>
-                
                 <button id="saveProfileBtn" class="action-btn" style="margin-bottom:12px;">Save Changes</button>
                 <button id="disconnectBtn" class="action-btn" style="background:#ef4444; color:#fff;">Disconnect</button>
             </div>
         </div>
     </div>
 
-    <div id="dmPanel">
+    <!-- DM INBOX PANEL -->
+    <div id="dmInboxPanel" class="full-screen-panel">
         <div class="dm-header">
-            <div>
-                <h2 style="font-size:18px;">Direct Messages</h2>
-                <span id="dmStatus" style="font-size: 12px; color: var(--text-muted);">Enter target link node</span>
+            <h2 style="font-size:22px; font-weight:700;">Messages</h2>
+            <button id="closeInboxBtn" style="background:none; border:none; color:var(--text); font-size:16px; font-weight:600; cursor:pointer;">Close</button>
+        </div>
+        
+        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="newChatInput" class="input-field" style="margin-bottom:0; border-radius:12px; padding:12px 16px; flex:1;" placeholder="Search username...">
+                <button id="startNewChatBtn" style="background:var(--accent-blue); color:#fff; border:none; border-radius:12px; padding:0 16px; font-weight:600; cursor:pointer;">Start</button>
             </div>
-            <button id="closeDMsBtn" class="join-btn">Close</button>
         </div>
-        
-        <div id="dmHistoryBox"></div>
 
-        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-            <input type="text" id="dmTargetUser" class="input-field" placeholder="Target username..." style="margin-bottom: 0;">
-            <button id="connectDMTunnelBtn" class="join-btn" style="background:var(--accent); color:var(--bg);">Connect</button>
-        </div>
-        <div id="dmChatLog">
-            <div style="color: var(--text-muted); text-align: center; margin-top: 100px; font-size: 14px;">Connect node channel.</div>
+        <div id="recent-chats-container"></div>
+    </div>
+
+    <!-- ACTIVE CHAT PANEL -->
+    <div id="dmChatPanel" class="full-screen-panel" style="z-index: 1001;">
+        <div class="dm-header">
+            <div class="dm-header-left">
+                <button id="backToInboxBtn" style="background:none; border:none; color:var(--text); font-size:24px; cursor:pointer; padding-right:8px;">←</button>
+                <div class="chat-avatar" id="activeChatAvatar" style="width:36px; height:36px; font-size:14px; border:none;"></div>
+                <div>
+                    <h2 id="dmHeaderName" style="font-size:16px; font-weight:600;">User</h2>
+                    <span id="dmStatus" style="font-size:12px; color:var(--text-muted);">Active now</span>
+                </div>
+            </div>
         </div>
         
+        <div id="dmChatLog"></div>
+        
+        <div id="typingIndicator" style="font-size: 12px; color: var(--text-muted); margin: 0 16px 4px; height: 16px; flex-shrink: 0;"></div>
+
+        <div id="replyPreviewBar" class="reply-bar">
+            <div>Replying to <strong id="replyTargetName"></strong><br><span id="replyTargetText" style="font-size:11px; opacity:0.8;"></span></div>
+            <span id="cancelReplyBtn" style="font-size: 16px; cursor: pointer; padding: 4px;">✕</span>
+        </div>
+
         <div class="dm-controls">
-            <button id="mediaPhotoBtn" class="media-tool-btn" title="Send Photo">📷</button>
-            <input type="file" id="dmPhotoFile" accept="image/*" style="display: none;">
-            
-            <button id="dmVoiceBtn" class="media-tool-btn" title="Record Voice">🎙️</button>
-            <input type="file" id="dmVoiceFallbackFile" accept="audio/*" capture="microphone" style="display: none;">
-            
-            <input type="text" id="dmMsgInput" class="input-field" placeholder="Type message..." style="margin-bottom: 0; flex: 1;" disabled>
-            <button id="dmSendBtn" class="join-btn" style="background:var(--accent); color:var(--bg);" disabled>Send</button>
+            <div class="input-pill">
+                <button id="mediaPhotoBtn" class="cam-btn">📷</button>
+                <input type="file" id="dmPhotoFile" accept="image/*" style="display: none;">
+                <input type="text" id="dmMsgInput" class="msg-input" placeholder="Message..." disabled>
+                <button id="dmSendBtn" class="send-text-btn" disabled>Send</button>
+            </div>
         </div>
     </div>
 
-    <div id="hubChatPanel">
-        <div class="hub-chat-header">
-            <div>
-                <h2 id="hubChatTitle">Hub Channel</h2>
-                <span id="hubChatTag" class="hub-tag" style="margin-top:4px;">CHANNEL</span>
-            </div>
-            <button id="closeHubChatBtn" class="join-btn">Exit Room</button>
-        </div>
-        <div id="hubChatLog"></div>
-        <div style="display: flex; gap: 8px; margin-bottom: env(safe-area-inset-bottom, 0px);">
-            <input type="text" id="hubMsgInput" class="input-field" placeholder="Broadcast to channel..." style="margin-bottom: 0;">
-            <button id="sendHubMsgBtn" class="join-btn" style="background:var(--accent); color:var(--bg);">Send</button>
-        </div>
+    <div id="reactionTray" class="reaction-tray">
+        <div class="reaction-emoji">❤️</div>
+        <div class="reaction-emoji">😂</div>
+        <div class="reaction-emoji">😮</div>
+        <div class="reaction-emoji">😢</div>
+        <div class="reaction-emoji" id="unsendMenuTrigger" style="font-size:12px; color:#ef4444; display:flex; align-items:center; margin-left:8px; border-left:1px solid #333; padding-left:12px;">Unsend</div>
     </div>
 
     <nav id="mainNav">
@@ -244,7 +240,16 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get, child, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, push, onValue, update, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                const log = document.getElementById('dmChatLog');
+                if (log) log.scrollTop = log.scrollHeight + 1000;
+            });
+        }
+
+        window.addEventListener('error', e => { const n = document.getElementById('authFeedback'); if(n){ n.style.display='block'; n.className='feedback-log error'; n.innerText='CRASH: '+e.message; } });
 
         const firebaseConfig = {
             apiKey: "AIzaSyDtEKv70MeF6X7nFhyUU-g_6UDmPdwlntw",
@@ -259,39 +264,75 @@
         const app = initializeApp(firebaseConfig);
         const rtdb = getDatabase(app);
 
-        let isLoginMode = false;
-        let currentUser = null;
-        let activeDMTarget = null;
-        let activeHubId = null;
-        
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let isRecording = false;
+        let isLoginMode = false, currentUser = null, activeDMTarget = null, activeHubId = null;
+        let replyingToId = null, replyingToText = "";
+        let touchStartX = 0, currentTouchX = 0;
+        let dmMessagesListener = null, typingListener = null, presenceListener = null;
+
+        try { const sess = localStorage.getItem('nexora_user'); if(sess) { currentUser = sess; loadApplicationState(); } } catch(e) {}
+
+        // BULLETPROOF ESCAPE FUNCTION FOR MISSING DATA
+        function escapeHTML(str) { 
+            if (str === null || str === undefined) return "";
+            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); 
+        }
 
         document.getElementById('authBtn').addEventListener('click', handleAuth);
         document.getElementById('authToggle').addEventListener('click', toggleAuthMode);
         document.getElementById('createPostBtn').addEventListener('click', createPost);
-        document.getElementById('createHubBtn').addEventListener('click', generateSubspace);
         document.getElementById('saveProfileBtn').addEventListener('click', updateProfile);
         document.getElementById('disconnectBtn').addEventListener('click', logout);
-        document.getElementById('closeDMsBtn').addEventListener('click', closeDMs);
-        document.getElementById('connectDMTunnelBtn').addEventListener('click', connectDMTunnel);
-        document.getElementById('mediaPhotoBtn').addEventListener('click', triggerFileSelect);
-        document.getElementById('dmPhotoFile').addEventListener('change', handleDMPhotoUpload);
-        document.getElementById('dmVoiceBtn').addEventListener('click', toggleVoiceRecording);
-        document.getElementById('dmVoiceFallbackFile').addEventListener('change', handleFallbackVoiceUpload);
-        document.getElementById('dmSendBtn').addEventListener('click', sendDM);
-        document.getElementById('closeHubChatBtn').addEventListener('click', closeHubChat);
-        document.getElementById('sendHubMsgBtn').addEventListener('click', sendHubMessage);
+        
+        document.getElementById('navDMsBtn').addEventListener('click', () => { document.getElementById('dmInboxPanel').classList.add('sliding-active'); });
+        document.getElementById('closeInboxBtn').addEventListener('click', () => { document.getElementById('dmInboxPanel').classList.remove('sliding-active'); });
+        
+        document.getElementById('startNewChatBtn').addEventListener('click', () => { 
+            const user = document.getElementById('newChatInput').value.trim().toLowerCase();
+            if(user) connectDMTunnel(user); 
+        });
 
+        document.getElementById('backToInboxBtn').addEventListener('click', () => { 
+            document.getElementById('dmChatPanel').classList.remove('sliding-active'); 
+            if(dmMessagesListener) dmMessagesListener(); 
+            if(typingListener) typingListener(); 
+            if(presenceListener) presenceListener(); 
+            activeDMTarget = null; 
+            resetReplyState(); 
+        });
+
+        document.getElementById('mediaPhotoBtn').addEventListener('click', () => { if(activeDMTarget) document.getElementById('dmPhotoFile').click(); });
+        document.getElementById('dmPhotoFile').addEventListener('change', handleDMPhotoUpload);
+        document.getElementById('dmSendBtn').addEventListener('click', sendDM);
+        
         document.getElementById('navFeedBtn').addEventListener('click', function() { switchPage('feedPage', this); });
         document.getElementById('navHubsBtn').addEventListener('click', function() { switchPage('subspacesPage', this); });
-        document.getElementById('navDMsBtn').addEventListener('click', openDMs);
         document.getElementById('navProfileBtn').addEventListener('click', function() { switchPage('profilePage', this); });
 
+        document.getElementById('cancelReplyBtn').addEventListener('click', resetReplyState);
+
+        document.getElementById('dmMsgInput').addEventListener('input', function() {
+            const btn = document.getElementById('dmSendBtn');
+            if(this.value.trim().length > 0) { btn.style.display = 'block'; btn.removeAttribute('disabled'); } 
+            else { btn.style.display = 'none'; btn.setAttribute('disabled', 'true'); }
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            if(!e.target.closest('.reaction-tray') && !e.target.closest('.dm-bubble')) document.getElementById('reactionTray').style.display = 'none';
+        });
+
+        document.querySelectorAll('.reaction-emoji').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tray = document.getElementById('reactionTray');
+                const msgId = tray.dataset.msgid;
+                const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
+                if (e.target.id === "unsendMenuTrigger") { if(tray.dataset.sender === currentUser) remove(ref(rtdb, `dms/${tunnelId}/${msgId}`)); } 
+                else { update(ref(rtdb, `dms/${tunnelId}/${msgId}`), { reaction: e.target.innerText }); }
+                tray.style.display = 'none';
+            });
+        });
+
         function toggleAuthMode() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('authFeedback').style.display = 'none';
+            isLoginMode = !isLoginMode; document.getElementById('authFeedback').style.display = 'none';
             document.getElementById('authTitle').innerText = isLoginMode ? "Log In" : "Create Account";
             document.getElementById('authBtn').innerText = isLoginMode ? "Sign In" : "Register";
             document.getElementById('authToggle').innerText = isLoginMode ? "New here? Create Account" : "Have an account? Log In";
@@ -301,449 +342,268 @@
             const user = document.getElementById('authUsername').value.trim().toLowerCase();
             const pass = document.getElementById('authPassword').value.trim();
             const msgNode = document.getElementById('authFeedback');
-            
-            if(!user || !pass) {
-                msgNode.innerText = "All fields required.";
-                msgNode.style.display = 'block';
-                return;
-            }
+            msgNode.style.display = 'none'; 
+            if(!user || !pass) { showError("Required fields missing."); return; }
+            if(/[.#$\[\]\s]/.test(user)) { showError("Invalid characters."); return; }
+            msgNode.className = "feedback-log loading"; msgNode.innerText = "Connecting..."; msgNode.style.display = 'block';
 
-            const userRef = ref(rtdb, 'users/' + user);
-            get(userRef).then(snapshot => {
+            get(ref(rtdb, 'users/' + user)).then(snapshot => {
                 if (!isLoginMode) {
-                    if (snapshot.exists() || user === "system") {
-                        msgNode.innerText = "Username taken.";
-                        msgNode.style.display = 'block';
-                        return;
-                    }
-                    let newUser = { username: user, password: pass, bio: "No bio written yet.", avatar: "", color: "#ffffff" };
-                    set(userRef, newUser).then(() => {
-                        currentUser = user;
-                        loadApplicationState();
-                    });
+                    if (snapshot.exists() || user === "system") { showError("Username taken."); return; }
+                    set(ref(rtdb, 'users/' + user), { username: user, password: pass, bio: "No bio written yet.", avatar: "", color: "#ffffff" })
+                    .then(() => { currentUser = user; try { localStorage.setItem('nexora_user', user); } catch(e) {} loadApplicationState(); })
+                    .catch(err => showError(`WRITE ERROR: ${err.message}`));
                 } else {
-                    if (!snapshot.exists() || snapshot.val().password !== pass) {
-                        msgNode.innerText = "Invalid credentials.";
-                        msgNode.style.display = 'block';
-                        return;
-                    }
-                    currentUser = user;
-                    loadApplicationState();
+                    if (!snapshot.exists() || snapshot.val().password !== pass) { showError("Invalid credentials."); return; }
+                    currentUser = user; try { localStorage.setItem('nexora_user', user); } catch(e) {} loadApplicationState();
                 }
-            });
+            }).catch(err => showError(`READ ERROR: ${err.message}`));
         }
 
+        function showError(msg) { const n = document.getElementById('authFeedback'); n.className = "feedback-log error"; n.innerText = msg; n.style.display = 'block'; }
+        
         function loadApplicationState() {
             if(!currentUser) return;
-            
-            document.getElementById('authPage').classList.remove('active');
-            document.getElementById('mainNav').classList.add('authorized');
-            document.getElementById('feedPage').classList.add('active');
-            document.getElementById('identityBadge').innerText = currentUser.toUpperCase();
-
-            const userRef = ref(rtdb, 'users/' + currentUser);
-            get(userRef).then(snapshot => {
-                let data = snapshot.val();
-                document.getElementById('displayUsername').innerText = currentUser;
-                document.getElementById('displayBio').innerText = data.bio || "Active platform node.";
-
-                if (data.color) applyGlobalThemeAccent(data.color);
-                if (data.avatar) document.getElementById('editAvatar').value = data.avatar;
-
-                syncFeed();
-                syncHubs();
-                syncDMHistoryList();
+            document.getElementById('authPage').classList.remove('active'); document.getElementById('mainNav').classList.add('authorized'); document.getElementById('feedPage').classList.add('active');
+            const myPresenceRef = ref(rtdb, `presence/${currentUser}`); set(myPresenceRef, true); onDisconnect(myPresenceRef).remove();
+            get(ref(rtdb, 'users/' + currentUser)).then(snapshot => {
+                if(snapshot.exists()) {
+                    let data = snapshot.val(); document.getElementById('displayUsername').innerText = currentUser; document.getElementById('displayBio').innerText = data.bio || "Active node.";
+                    if (data.avatar) document.getElementById('editAvatar').value = data.avatar;
+                }
+                syncFeed(); syncDMHistoryList();
             });
         }
 
-        function applyGlobalThemeAccent(colorHex) {
-            let styleTag = document.getElementById('dynamicAccentStyle');
-            if(!styleTag) {
-                styleTag = document.createElement('style');
-                styleTag.id = 'dynamicAccentStyle';
-                document.head.appendChild(styleTag);
-            }
-            styleTag.innerHTML = `
-                .action-btn { background: ${colorHex} !important; }
-                .action-link.liked { color: ${colorHex} !important; }
-                .join-btn[style*="background:var(--accent)"] { background: ${colorHex} !important; }
-            `;
-        }
-
-        function logout() { currentUser = null; location.reload(); }
-
-        function switchPage(pageId, button) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            if(button) button.classList.add('active');
-        }
+        function logout() { currentUser = null; try { localStorage.removeItem('nexora_user'); } catch(e) {} location.reload(); }
+        function switchPage(pageId, button) { document.querySelectorAll('.page').forEach(page => page.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); document.getElementById(pageId).classList.add('active'); if(button) button.classList.add('active'); }
 
         function createPost() {
-            const txt = document.getElementById('postInput').value.trim();
-            const imgUrl = document.getElementById('postImageUrl').value.trim();
-            if(!txt && !imgUrl) return;
-
-            const postsRef = ref(rtdb, 'posts');
-            const newPostRef = push(postsRef);
-            
-            let newPost = { 
-                id: newPostRef.key, 
-                user: currentUser, 
-                content: txt, 
-                image: imgUrl, 
-                time: "Just now", 
-                likes: 0
-            };
-            
-            set(newPostRef, newPost).then(() => {
-                document.getElementById('postInput').value = '';
-                document.getElementById('postImageUrl').value = '';
-            });
+            const txt = document.getElementById('postInput').value.trim(), imgUrl = document.getElementById('postImageUrl').value.trim();
+            if(!txt && !imgUrl) return; push(ref(rtdb, 'posts'), { id: push().key, user: currentUser, content: txt, image: imgUrl, time: "Just now", likes: 0 }).then(() => { document.getElementById('postInput').value = ''; document.getElementById('postImageUrl').value = ''; });
         }
 
         function syncFeed() {
-            const feed = document.getElementById('postFeed');
             onValue(ref(rtdb, 'posts'), postsSnapshot => {
                 onValue(ref(rtdb, 'users'), usersSnapshot => {
-                    feed.innerHTML = '';
-                    let posts = [];
-                    postsSnapshot.forEach(child => { posts.push(child.val()); });
+                    const feed = document.getElementById('postFeed'); feed.innerHTML = '';
+                    let posts = []; postsSnapshot.forEach(child => { posts.push(child.val()); }); posts.sort((a, b) => b.id.localeCompare(a.id));
+                    if(posts.length === 0) { feed.innerHTML = `<div class="post"><div class="post-content" style="color:var(--text-muted);">Empty.</div></div>`; return; }
                     let userMap = usersSnapshot.val() || {};
-                    
-                    posts.sort((a, b) => b.id.localeCompare(a.id));
-
-                    if(posts.length === 0) {
-                        feed.innerHTML = `<div class="post"><div class="post-content" style="color:var(--text-muted);">Welcome to NEXORA Cloud Core V2. Network log empty.</div></div>`;
-                        return;
-                    }
-                    
                     posts.forEach(p => {
                         let div = document.createElement('div'); div.classList.add('post');
                         const hasLiked = p.likedBy && p.likedBy[currentUser] === true;
-                        const isOwner = p.user === currentUser;
-                        
-                        let deleteButton = isOwner ? `<button class="action-link delete-action" data-id="${p.id}">Delete</button>` : '';
-                        let btnLabel = hasLiked ? 'Liked' : 'Like';
-                        let btnClass = hasLiked ? 'action-link liked' : 'action-link';
-                        
                         let imgBlock = p.image ? `<div style="margin-top: 14px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); max-height: 280px; background: #050507;"><img src="${escapeHTML(p.image)}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></div>` : '';
-
-                        let uData = userMap[p.user] || null;
-                        let userAvatarUrl = uData ? (uData.avatar || "") : "";
-                        let avatarHTML = userAvatarUrl 
-                            ? `<img src="${escapeHTML(userAvatarUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">` 
-                            : p.user.charAt(0).toUpperCase();
-
-                        div.innerHTML = `
-                            <div class="post-meta"><div class="post-avatar">${avatarHTML}</div>${escapeHTML(p.user)}<span class="post-time">${p.time}</span></div>
-                            <div class="post-content">${escapeHTML(p.content)}</div>
-                            ${imgBlock}
-                            <div class="post-actions">
-                                <button class="${btnClass} like-trigger" data-id="${p.id}" data-likes="${p.likes || 0}">${btnLabel} (${p.likes || 0})</button>
-                                ${deleteButton}
-                            </div>`;
-                        
-                        let deleteBtnNode = div.querySelector('.delete-action');
-                        if(deleteBtnNode) deleteBtnNode.addEventListener('click', () => deletePost(p.id));
-                        div.querySelector('.like-trigger').addEventListener('click', () => toggleLikePost(p.id, hasLiked, p.likes || 0));
-                        
+                        let avatarHTML = (userMap[p.user] && userMap[p.user].avatar) ? `<img src="${escapeHTML(userMap[p.user].avatar)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : p.user.charAt(0).toUpperCase();
+                        div.innerHTML = `<div class="post-meta"><div class="post-avatar">${avatarHTML}</div>${escapeHTML(p.user)}</div><div class="post-content">${escapeHTML(p.content)}</div>${imgBlock}<div class="post-actions"><button class="action-link ${hasLiked ? 'liked' : ''} like-trigger">${hasLiked ? 'Liked' : 'Like'} (${p.likes || 0})</button>${p.user === currentUser ? `<button class="action-link delete-action">Delete</button>` : ''}</div>`;
+                        let delBtn = div.querySelector('.delete-action'); if(delBtn) delBtn.addEventListener('click', () => remove(ref(rtdb, 'posts/' + p.id)));
+                        div.querySelector('.like-trigger').addEventListener('click', () => {
+                            const likedRef = ref(rtdb, `posts/${p.id}/likedBy/${currentUser}`), countRef = ref(rtdb, `posts/${p.id}/likes`);
+                            if (!hasLiked) { set(likedRef, true); set(countRef, (p.likes || 0) + 1); } else { remove(likedRef); set(countRef, Math.max(0, (p.likes || 0) - 1)); }
+                        });
                         feed.appendChild(div);
                     });
                 });
             });
         }
 
-        function toggleLikePost(postId, hasLiked, currentLikes) {
-            const likedRef = ref(rtdb, `posts/${postId}/likedBy/${currentUser}`);
-            const countRef = ref(rtdb, `posts/${postId}/likes`);
-            if (!hasLiked) {
-                set(likedRef, true);
-                set(countRef, currentLikes + 1);
-            } else {
-                remove(likedRef);
-                set(countRef, Math.max(0, currentLikes - 1));
-            }
-        }
-
-        function deletePost(postId) {
-            remove(ref(rtdb, 'posts/' + postId));
-        }
-
-        function generateSubspace() {
-            const name = document.getElementById('subspaceName').value.trim();
-            const desc = document.getElementById('subspaceDesc').value.trim();
-            const type = document.getElementById('subspaceType').value.trim().toUpperCase();
-            if(!name || !desc || !type) return;
-
-            const hubsRef = ref(rtdb, 'hubs');
-            const newHubRef = push(hubsRef);
-            
-            let newHub = { id: newHubRef.key, name, desc, type };
-            set(newHubRef, newHub).then(() => {
-                document.getElementById('subspaceName').value = ''; document.getElementById('subspaceDesc').value = ''; document.getElementById('subspaceType').value = '';
-            });
-        }
-
-        function syncHubs() {
-            const hubContainer = document.getElementById('subspaceHub');
-            onValue(ref(rtdb, 'hubs'), snapshot => {
-                hubContainer.innerHTML = '';
-                if(!snapshot.exists()) {
-                    hubContainer.innerHTML = `<div style="color:var(--text-muted); font-size:14px; padding:12px 0;">No deployment networks detected.</div>`;
-                    return;
-                }
-                snapshot.forEach(child => {
-                    let h = child.val();
-                    let div = document.createElement('div'); div.classList.add('hub-item');
-                    div.innerHTML = `<div class="hub-info"><h3>${escapeHTML(h.name)}</h3><p>${escapeHTML(h.desc)}</p><span class="hub-tag">${escapeHTML(h.type)}</span></div><button class="join-btn open-room-trigger">Open Room</button>`;
-                    div.querySelector('.open-room-trigger').addEventListener('click', () => openHubChat(h.id));
-                    hubContainer.appendChild(div);
-                });
-            });
-        }
-
-        let hubMessagesListener = null;
-        function openHubChat(hubId) {
-            activeHubId = hubId;
-            if(hubMessagesListener) hubMessagesListener();
-            
-            get(ref(rtdb, 'hubs/' + hubId)).then(snapshot => {
-                let targetHub = snapshot.val();
-                document.getElementById('hubChatTitle').innerText = targetHub.name;
-                document.getElementById('hubChatTag').innerText = targetHub.type;
-                
-                document.getElementById('hubChatPanel').classList.add('sliding-active');
-                
-                const log = document.getElementById('hubChatLog');
-                hubMessagesListener = onValue(ref(rtdb, `hubs/${hubId}/messages`), msgSnapshot => {
-                    log.innerHTML = '';
-                    if(!msgSnapshot.exists()) {
-                        log.innerHTML = `<div style="color:var(--text-muted); text-align:center; margin-top:100px;">Channel feed empty. Start transmission.</div>`;
-                        return;
-                    }
-                    msgSnapshot.forEach(child => {
-                        let m = child.val();
-                        let div = document.createElement('div');
-                        div.className = `hub-msg-bubble ${m.sender === currentUser ? 'me' : 'them'}`;
-                        div.innerHTML = `<strong style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px;">${escapeHTML(m.sender)}</strong>${escapeHTML(m.message)}`;
-                        log.appendChild(div);
-                    });
-                    log.scrollTop = log.scrollHeight;
-                });
-            });
-        }
-
-        function closeHubChat() {
-            document.getElementById('hubChatPanel').classList.remove('sliding-active');
-            if(hubMessagesListener) hubMessagesListener();
-            activeHubId = null;
-        }
-
-        function sendHubMessage() {
-            const input = document.getElementById('hubMsgInput');
-            if(!input || !input.value.trim() || !activeHubId) return;
-            
-            const msgRef = ref(rtdb, `hubs/${activeHubId}/messages`);
-            push(msgRef, { sender: currentUser, message: input.value.trim() }).then(() => {
-                input.value = '';
-            });
-        }
-
         function updateProfile() {
-            const bio = document.getElementById('editBio').value.trim();
-            const avatar = document.getElementById('editAvatar').value.trim();
-            const color = document.getElementById('editColor').value;
+            const newUsername = document.getElementById('editUsername').value.trim().toLowerCase(), newPassword = document.getElementById('editPassword').value.trim(), bio = document.getElementById('editBio').value.trim(), avatar = document.getElementById('editAvatar').value.trim();
+            let updates = {}; if(newPassword) updates[`users/${currentUser}/password`] = newPassword; if(bio) updates[`users/${currentUser}/bio`] = bio; if(avatar) updates[`users/${currentUser}/avatar`] = avatar; 
+            update(ref(rtdb), updates).then(() => { document.getElementById('editPassword').value = ''; loadApplicationState(); });
+        }
+
+        function triggerReply(msgId, text, sender) {
+            replyingToId = msgId; replyingToText = text;
+            document.getElementById('replyTargetName').innerText = sender;
+            document.getElementById('replyTargetText').innerText = String(text).substring(0, 40) + (String(text).length > 40 ? '...' : '');
+            document.getElementById('replyPreviewBar').style.display = 'flex';
+            document.getElementById('dmMsgInput').focus();
+        }
+        function resetReplyState() { replyingToId = null; replyingToText = ""; document.getElementById('replyPreviewBar').style.display = 'none'; }
+
+        function handleDoubleTapHeart(el, tunnelId, msgId) {
+            let overlay = el.querySelector('.heart-overlay');
+            if(!overlay) { overlay = document.createElement('div'); overlay.className = 'heart-overlay'; overlay.innerText = '❤️'; el.appendChild(overlay); }
+            overlay.style.display = 'block'; overlay.style.animation = 'none'; void overlay.offsetWidth; overlay.style.animation = 'heartBurst 0.6s ease-out forwards';
+            update(ref(rtdb, `dms/${tunnelId}/${msgId}`), { reaction: "❤️" });
+        }
+
+        function connectDMTunnel(targetUser) {
+            if(!targetUser || !currentUser || targetUser === currentUser) return;
             
-            let updates = {};
-            if(bio) updates[`users/${currentUser}/bio`] = bio;
-            if(avatar) updates[`users/${currentUser}/avatar`] = avatar;
-            updates[`users/${currentUser}/color`] = color;
+            activeDMTarget = targetUser;
+            document.getElementById('dmMsgInput').removeAttribute('disabled'); 
+            document.getElementById('dmHeaderName').innerText = activeDMTarget;
+            document.getElementById('dmStatus').innerText = "Connecting...";
+            document.getElementById('activeChatAvatar').innerText = activeDMTarget.charAt(0).toUpperCase();
             
-            update(ref(rtdb), updates).then(() => {
-                loadApplicationState();
+            document.getElementById('dmChatPanel').classList.add('sliding-active');
+            
+            const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
+            if(dmMessagesListener) dmMessagesListener(); if(typingListener) typingListener(); if(presenceListener) presenceListener();
+            
+            presenceListener = onValue(ref(rtdb, `presence/${activeDMTarget}`), snap => { document.getElementById('dmStatus').innerText = snap.exists() ? "Active now" : `Offline`; });
+            typingListener = onValue(ref(rtdb, `typing/${tunnelId}/${activeDMTarget}`), snap => { document.getElementById('typingIndicator').innerText = (snap.exists() && snap.val() === true) ? `${activeDMTarget} is typing...` : ""; });
+
+            get(ref(rtdb, `dms/${tunnelId}`)).then(snap => {
+                if (snap.exists()) {
+                    let updates = {}; snap.forEach(child => { if (child.val().sender !== currentUser && child.val().status !== 'seen') { updates[child.key + '/status'] = 'seen'; } });
+                    if (Object.keys(updates).length > 0) update(ref(rtdb, `dms/${tunnelId}`), updates);
+                }
+            });
+
+            dmMessagesListener = onValue(ref(rtdb, `dms/${tunnelId}`), dmSnapshot => {
+                const log = document.getElementById('dmChatLog'); log.innerHTML = '';
+                if(!dmSnapshot.exists()) return;
+                
+                let msgs = []; dmSnapshot.forEach(child => msgs.push({ id: child.key, ...child.val() }));
+                let lastTime = 0;
+
+                msgs.forEach((m, index) => {
+                    let safeTimestamp = m.timestamp || 0;
+                    if (safeTimestamp && (safeTimestamp - lastTime > 3600000)) { 
+                        let timeDiv = document.createElement('div'); timeDiv.className = 'time-divider'; timeDiv.innerText = new Date(safeTimestamp).toLocaleString([], {weekday: 'short', hour: '2-digit', minute:'2-digit'}); log.appendChild(timeDiv);
+                    }
+                    if(safeTimestamp) lastTime = safeTimestamp;
+
+                    let prev = index > 0 ? msgs[index - 1] : null, next = index < msgs.length - 1 ? msgs[index + 1] : null;
+                    
+                    // BULLETPROOF SENDER CHECK
+                    let senderName = m.sender || "Unknown";
+                    
+                    let isFirst = !prev || prev.sender !== senderName || (safeTimestamp && prev.timestamp && safeTimestamp - prev.timestamp > 300000);
+                    let isLast = !next || next.sender !== senderName || (next.timestamp && safeTimestamp && next.timestamp - safeTimestamp > 300000);
+
+                    let radiusClass = (isFirst && isLast) ? "single" : (isFirst && !isLast) ? "group-start" : (!isFirst && !isLast) ? "group-mid" : "group-end";
+
+                    let row = document.createElement('div');
+                    row.className = `message-row ${senderName === currentUser ? 'me' : 'them'} ${radiusClass}`; 
+                    
+                    let avatarHTML = senderName !== currentUser ? `<div class="them-avatar">${senderName.charAt(0).toUpperCase()}</div>` : '';
+
+                    let bubble = document.createElement('div'); 
+                    bubble.className = `dm-bubble ${senderName === currentUser ? 'me' : 'them'}`; 
+                    
+                    let replyHTML = m.replyTo ? `<div class="replied-to-ref">↪ ${escapeHTML(m.replyTo)}</div>` : "";
+                    
+                    // BULLETPROOF MESSAGE EXTRACTION
+                    let msgText = m.message || m.text || "";
+                    let contentHTML = m.type === "image" ? `<img src="${msgText}" class="dm-media-img">` : escapeHTML(msgText);
+                    
+                    let reactionHTML = m.reaction ? `<div class="reaction-badge">${m.reaction}</div>` : ""; 
+                    bubble.innerHTML = replyHTML + contentHTML + reactionHTML;
+
+                    let isSwiping = false, pressTimer, lastTap = 0;
+
+                    bubble.addEventListener('touchstart', e => {
+                        touchStartX = e.touches[0].clientX; isSwiping = false;
+                        pressTimer = setTimeout(() => { 
+                            const tray = document.getElementById('reactionTray'); const rect = bubble.getBoundingClientRect();
+                            let trayX = rect.left + (rect.width / 2);
+                            trayX = Math.max(160, Math.min(window.innerWidth - 160, trayX));
+                            
+                            tray.style.display = 'flex'; tray.style.left = trayX + 'px'; tray.style.top = (rect.top - 10) + 'px';
+                            tray.dataset.msgid = m.id; tray.dataset.sender = senderName;
+                            document.getElementById('unsendMenuTrigger').style.display = (senderName === currentUser) ? 'block' : 'none';
+                        }, 500);
+                    });
+
+                    bubble.addEventListener('touchmove', e => {
+                        currentTouchX = e.touches[0].clientX; let diff = currentTouchX - touchStartX;
+                        if(Math.abs(diff) > 10) { isSwiping = true; clearTimeout(pressTimer); }
+                        if (diff < 0 && senderName === currentUser) row.style.transform = `translateX(${Math.max(diff, -60)}px)`; 
+                        else if (diff > 0 && senderName !== currentUser) row.style.transform = `translateX(${Math.min(diff, 60)}px)`; 
+                    });
+
+                    bubble.addEventListener('touchend', () => {
+                        clearTimeout(pressTimer); row.style.transform = 'translateX(0)';
+                        if (isSwiping && Math.abs(currentTouchX - touchStartX) > 40) triggerReply(m.id, msgText, senderName);
+                        else if (!isSwiping) { 
+                            let currentTime = new Date().getTime(); let tapLength = currentTime - lastTap;
+                            if (tapLength < 300 && tapLength > 0) handleDoubleTapHeart(bubble, tunnelId, m.id);
+                            lastTap = currentTime;
+                        }
+                    });
+
+                    row.innerHTML = avatarHTML;
+                    row.appendChild(bubble);
+                    log.appendChild(row);
+
+                    if (index === msgs.length - 1 && senderName === currentUser && m.status === 'seen') { 
+                        let seenDiv = document.createElement('div'); seenDiv.className = 'seen-status'; seenDiv.innerText = 'Seen'; log.appendChild(seenDiv); 
+                    }
+                });
+                
+                setTimeout(() => { 
+                    const lastElement = log.lastElementChild;
+                    if(lastElement) lastElement.scrollIntoView({ block: 'end' }); 
+                }, 50);
             });
         }
 
-        function openDMs() { 
-            document.getElementById('dmPanel').classList.add('sliding-active'); 
-        }
-        function closeDMs() { 
-            document.getElementById('dmPanel').classList.remove('sliding-active'); 
-            if(dmMessagesListener) dmMessagesListener();
-        }
-        
-        let dmMessagesListener = null;
-        function connectDMTunnel() {
-            const target = document.getElementById('dmTargetUser').value.trim().toLowerCase();
-            if(!target || !currentUser || target === currentUser) return;
-            
-            get(ref(rtdb, 'users/' + target)).then(snapshot => {
-                if(!snapshot.exists()) {
-                    alert("Target node link path not found on cloud core registry.");
-                    return;
-                }
-                activeDMTarget = target;
-                document.getElementById('dmMsgInput').removeAttribute('disabled');
-                document.getElementById('dmSendBtn').removeAttribute('disabled');
-                document.getElementById('dmStatus').innerText = `Active Link: ${activeDMTarget}`;
-                
-                const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
-                
-                if(dmMessagesListener) dmMessagesListener();
-                
-                const log = document.getElementById('dmChatLog');
-                dmMessagesListener = onValue(ref(rtdb, `dms/${tunnelId}`), dmSnapshot => {
-                    log.innerHTML = '';
-                    if(!dmSnapshot.exists()) {
-                        log.innerHTML = `<div style="color:var(--text-muted); text-align:center; margin-top:100px;">No transaction packets.</div>`;
-                        return;
-                    }
-                    dmSnapshot.forEach(child => {
-                        let m = child.val();
-                        let div = document.createElement('div'); div.className = `dm-bubble ${m.sender === currentUser ? 'me' : 'them'}`;
-                        
-                        if (m.type === "image") {
-                            div.innerHTML = `<img src="${m.message}" class="dm-media-img">`;
-                        } else if (m.type === "voice") {
-                            div.innerHTML = `<audio src="${m.message}" controls class="dm-voice-player"></audio>`;
-                        } else {
-                            div.innerText = m.message;
-                        }
-                        log.appendChild(div);
-                    });
-                    log.scrollTop = log.scrollHeight;
-                });
-            });
-        }
-        
-        function quickConnectDM(targetName) {
-            document.getElementById('dmTargetUser').value = targetName;
-            connectDMTunnel();
-        }
+        let typingTimer;
+        document.getElementById('dmMsgInput').addEventListener('input', () => {
+            if(!activeDMTarget) return; const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
+            set(ref(rtdb, `typing/${tunnelId}/${currentUser}`), true); clearTimeout(typingTimer); typingTimer = setTimeout(() => remove(ref(rtdb, `typing/${tunnelId}/${currentUser}`)), 1500);
+        });
 
         function sendDM() {
-            const input = document.getElementById('dmMsgInput'); if(!input || !input.value.trim() || !activeDMTarget) return;
-            const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
+            const input = document.getElementById('dmMsgInput'); if(!input.value.trim() || !activeDMTarget) return; 
+            const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`; 
             
-            let newDm = { sender: currentUser, receiver: activeDMTarget, message: input.value.trim(), type: "text" };
-            push(ref(rtdb, `dms/${tunnelId}`), newDm).then(() => {
-                input.value = ''; 
+            let payload = { sender: currentUser, receiver: activeDMTarget, message: input.value.trim(), type: "text", timestamp: Date.now(), status: "sent" };
+            if(replyingToText) payload.replyTo = replyingToText;
+            
+            push(ref(rtdb, `dms/${tunnelId}`), payload).then(() => { 
+                input.value = ''; resetReplyState(); 
+                document.getElementById('dmSendBtn').style.display = 'none'; 
+                document.getElementById('dmSendBtn').setAttribute('disabled', 'true');
             });
         }
 
-        function triggerFileSelect() {
-            if(!activeDMTarget) return;
-            document.getElementById('dmPhotoFile').click();
-        }
-
-        function handleDMPhotoUpload(event) {
-            const file = event.target.files[0];
-            if(!file || !activeDMTarget) return;
-            const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                let imgDataUrl = e.target.result;
-                let mediaDm = { sender: currentUser, receiver: activeDMTarget, message: imgDataUrl, type: "image" };
-                push(ref(rtdb, `dms/${tunnelId}`), mediaDm);
-            };
-            reader.readAsDataURL(file);
-            event.target.value = '';
-        }
-
-        function toggleVoiceRecording() {
-            if(!activeDMTarget) return;
-            const btn = document.getElementById('dmVoiceBtn');
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || window.location.protocol === 'file:') {
-                document.getElementById('dmVoiceFallbackFile').click();
-                return;
-            }
-
-            if (!isRecording) {
-                navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    
-                    mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            let voiceDataUrl = e.target.result;
-                            const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
-                            let voiceDm = { sender: currentUser, receiver: activeDMTarget, message: voiceDataUrl, type: "voice" };
-                            push(ref(rtdb, `dms/${tunnelId}`), voiceDm);
-                        };
-                        reader.readAsDataURL(audioBlob);
-                        stream.getTracks().forEach(track => track.stop());
-                    };
-
-                    mediaRecorder.start();
-                    isRecording = true;
-                    btn.classList.add('recording');
-                    btn.innerText = "🛑";
-                }).catch(() => {
-                    document.getElementById('dmVoiceFallbackFile').click();
-                });
-            } else {
-                if(mediaRecorder) mediaRecorder.stop();
-                isRecording = false;
-                btn.classList.remove('recording');
-                btn.innerText = "🎙️";
-            }
-        }
-
-        function handleFallbackVoiceUpload(event) {
-            const file = event.target.files[0];
-            if(!file || !activeDMTarget) return;
-            const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                let voiceDataUrl = e.target.result;
-                let voiceDm = { sender: currentUser, receiver: activeDMTarget, message: voiceDataUrl, type: "voice" };
-                push(ref(rtdb, `dms/${tunnelId}`), voiceDm);
-            };
-            reader.readAsDataURL(file);
-            event.target.value = '';
-        }
+        function handleDMPhotoUpload(event) { const file = event.target.files[0]; if(!file || !activeDMTarget) return; const tunnelId = currentUser < activeDMTarget ? `${currentUser}_${activeDMTarget}` : `${activeDMTarget}_${currentUser}`; const reader = new FileReader(); reader.onload = function(e) { push(ref(rtdb, `dms/${tunnelId}`), { sender: currentUser, receiver: activeDMTarget, message: e.target.result, type: "image", timestamp: Date.now(), status: "sent" }); }; reader.readAsDataURL(file); event.target.value = ''; }
         
         function syncDMHistoryList() {
-            const historyBox = document.getElementById('dmHistoryBox');
-            onValue(ref(rtdb, 'dms'), snapshot => {
-                historyBox.innerHTML = '';
-                if(!snapshot.exists() || !currentUser) {
-                    historyBox.innerHTML = `<div style="color:var(--text-muted); font-size:12px; padding:4px;">No active pipelines.</div>`;
-                    return;
-                }
-                
-                let uniqueUsers = new Set();
-                snapshot.forEach(child => {
-                    const key = child.key;
-                    if (key.includes(currentUser)) {
-                        let nodes = key.split('_');
-                        nodes.forEach(n => { if(n !== currentUser) uniqueUsers.add(n); });
-                    }
-                });
-                
-                if(uniqueUsers.size === 0) {
-                    historyBox.innerHTML = `<div style="color:var(--text-muted); font-size:12px; padding:4px;">No active pipelines.</div>`;
-                    return;
-                }
-                
-                uniqueUsers.forEach(user => {
-                    let btn = document.createElement('button');
-                    btn.className = 'history-node-btn';
-                    btn.innerText = `@${user}`;
-                    btn.addEventListener('click', () => quickConnectDM(user));
-                    historyBox.appendChild(btn);
+            onValue(ref(rtdb, 'dms'), dmsSnapshot => {
+                onValue(ref(rtdb, 'users'), usersSnapshot => {
+                    onValue(ref(rtdb, 'presence'), presenceSnapshot => {
+                        const container = document.getElementById('recent-chats-container'); container.innerHTML = '';
+                        if(!dmsSnapshot.exists() || !currentUser) return;
+                        let userMap = usersSnapshot.val() || {}, presenceMap = presenceSnapshot.val() || {}, chatList = [];
+                        dmsSnapshot.forEach(child => {
+                            if (child.key.includes(currentUser)) {
+                                let otherUser = child.key.split('_').find(n => n !== currentUser);
+                                if (otherUser) {
+                                    let msgs = [], unreadCount = 0; 
+                                    child.forEach(m => { let val = m.val(); msgs.push(val); if(val.sender !== currentUser && val.status !== 'seen') unreadCount++; }); 
+                                    
+                                    // BULLETPROOF PREVIEW EXTRACTION
+                                    let lastMsg = msgs[msgs.length - 1] || {};
+                                    let msgText = lastMsg.message || lastMsg.text || "";
+                                    let previewText = lastMsg.type === 'text' ? msgText : `Sent an attachment`;
+                                    
+                                    chatList.push({ username: otherUser, avatar: (userMap[otherUser] && userMap[otherUser].avatar) ? userMap[otherUser].avatar : "", preview: previewText, isOnline: !!presenceMap[otherUser], timestamp: lastMsg.timestamp || 0, unread: unreadCount });
+                                }
+                            }
+                        });
+                        chatList.sort((a, b) => b.timestamp - a.timestamp);
+                        if(chatList.length === 0) return;
+                        chatList.forEach(chat => {
+                            // BULLETPROOF AVATAR EXTRACTION
+                            let safeUsername = chat.username || "Unknown";
+                            let avatarHTML = chat.avatar ? `<img src="${escapeHTML(chat.avatar)}" class="chat-avatar">` : `<div class="chat-avatar">${safeUsername.charAt(0).toUpperCase()}</div>`;
+                            
+                            let badgeHTML = chat.unread > 0 ? `<div class="unread-badge" style="display:block;">${chat.unread}</div>` : '';
+                            let row = document.createElement('div'); row.className = 'chat-row';
+                            row.innerHTML = `<div class="chat-avatar-container">${avatarHTML}<div class="online-dot" style="display: ${chat.isOnline ? 'block' : 'none'};"></div></div><div class="chat-details"><div><div class="chat-username">${escapeHTML(safeUsername)}</div><div class="chat-preview" style="${chat.unread > 0 ? 'font-weight:bold; color:var(--text);' : ''}">${escapeHTML(chat.preview)}</div></div>${badgeHTML}</div>`;
+                            row.addEventListener('click', () => { connectDMTunnel(safeUsername); }); container.appendChild(row);
+                        });
+                    });
                 });
             });
         }
         
-        function escapeHTML(str) { return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
     </script>
 </body>
 </html>
